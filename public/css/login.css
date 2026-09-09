@@ -1,0 +1,441 @@
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f4f0; min-height: 100vh; display: flex; }
+
+  .login-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .left-panel {
+    width: 420px;
+    min-width: 420px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 48px;
+    border-right: 1px solid #e8e6e0;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 56px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: #e84545;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .logo-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: #999;
+    margin-top: 1px;
+  }
+
+  .form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 340px;
+  }
+
+  .greeting {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1a1a1a;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .greeting-sub {
+    font-size: 13.5px;
+    color: #888;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  .field-group {
+    margin-bottom: 18px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 7px;
+    letter-spacing: 0.3px;
+  }
+
+  .field-input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #e2e0db;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a1a1a;
+    background: #fafaf8;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .field-input:focus {
+    border-color: #e84545;
+    background: #fff;
+  }
+
+  .field-input::placeholder {
+    color: #bbb;
+  }
+
+  .field-input-wrap {
+    position: relative;
+  }
+
+  .field-input-wrap .field-input {
+    padding-right: 42px;
+  }
+
+  .eye-btn {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+  }
+
+  .eye-btn:hover { color: #888; }
+
+  .forgot-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .forgot-link {
+    font-size: 12px;
+    color: #e84545;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .forgot-link:hover { opacity: 0.75; }
+
+  .btn-login {
+    width: 100%;
+    height: 44px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.2px;
+  }
+
+  .btn-login:hover { background: #333; }
+  .btn-login:active { transform: scale(0.99); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: #ece9e3;
+  }
+
+  .divider-text {
+    font-size: 12px;
+    color: #bbb;
+  }
+
+  .btn-google {
+    width: 100%;
+    height: 42px;
+    background: #fff;
+    border: 1px solid #e2e0db;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-family: 'DM Sans', sans-serif;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .btn-google:hover { background: #fafaf8; border-color: #ccc; }
+
+  .google-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .signup-row {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .signup-row a {
+    color: #e84545;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .signup-row a:hover { opacity: 0.75; }
+
+  .bottom-note {
+    margin-top: auto;
+    font-size: 11.5px;
+    color: #bbb;
+    line-height: 1.6;
+  }
+
+  .bottom-note a { color: #999; text-decoration: underline; }
+
+  .right-panel {
+    flex: 1;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rp-top {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .tag-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .rp-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .rp-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    color: #fff;
+    line-height: 1.2;
+    max-width: 420px;
+    margin-bottom: 20px;
+  }
+
+  .rp-headline span {
+    color: #e84545;
+  }
+
+  .rp-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    max-width: 360px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 32px;
+  }
+
+  .stat-item {}
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .rp-mockup {
+    margin-top: 48px;
+  }
+
+  .mini-board {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .mini-col {
+    flex: 1;
+  }
+
+  .mini-col-header {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+
+  .mc-red { background: rgba(232,69,69,0.2); color: #e87070; }
+  .mc-amber { background: rgba(239,159,39,0.2); color: #f0b85a; }
+  .mc-purple { background: rgba(127,119,221,0.2); color: #a89ff0; }
+  .mc-green { background: rgba(99,153,34,0.2); color: #8dc455; }
+
+  .mini-card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+  }
+
+  .mc-title {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  .mc-avatars {
+    display: flex;
+  }
+
+  .mc-av {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #1a1a1a;
+    margin-right: -4px;
+    font-size: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .av1 { background: #e84545; }
+  .av2 { background: #7f77dd; }
+  .av3 { background: #1d9e75; }
+
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .orb1 {
+    width: 300px;
+    height: 300px;
+    background: rgba(232,69,69,0.06);
+    bottom: -80px;
+    right: -60px;
+  }
+
+  .orb2 {
+    width: 180px;
+    height: 180px;
+    background: rgba(127,119,221,0.05);
+    top: 80px;
+    left: -40px;
+  }
+
+  .error-card {
+      display: none; /* Tetap sembunyi sampai ada error */
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      
+      /* Garis pinggir merah tegas */
+      border: 1px solid #dc3545; 
+      
+      /* Latar belakang merah muda halus */
+      background-color: rgba(220, 53, 69, 0.1); 
+      
+      /* Warna teks merah gelap agar mudah dibaca */
+      color: #a94442; 
+      
+      /* Membuat sudut kotak sedikit melengkung */
+      border-radius: 6px;
+      
+      /* Ukuran font dan gaya */
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+  }
+
+  .success-card {
+      display: none; /* Tetap sembunyi sampai ada error */
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      
+      /* Garis pinggir merah tegas */
+      border: 1px solid #56dc35; 
+      
+      /* Latar belakang merah muda halus */
+      background-color: rgba(92, 220, 53, 0.1); 
+      
+      /* Warna teks merah gelap agar mudah dibaca */
+      color: #42a961; 
+      
+      /* Membuat sudut kotak sedikit melengkung */
+      border-radius: 6px;
+      
+      /* Ukuran font dan gaya */
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+  }

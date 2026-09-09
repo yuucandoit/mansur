@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('board_lists', function (Blueprint $table) {
+            $table->id();
+            $table->string('title', 200);
+            $table->unsignedBigInteger('project_id')->index();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->integer('order')->default(0)->index();
+            $table->tinyInteger('is_done')->default(0);
+            $table->tinyInteger('is_archive')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('board_lists');
+    }
+};
