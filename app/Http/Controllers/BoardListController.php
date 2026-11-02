@@ -17,8 +17,11 @@ class BoardListController extends Controller
             'is_done'    => 'nullable|boolean',
         ]);
 
+        $project = Project::findOrFail($data['project_id']);
+        abort_unless($request->user()->canAccessProject($project), 403);
+
         $data['user_id'] = auth()->id() ?? 1;
-        $data['order'] = BoardList::where('project_id', $data['project_id'])->count();
+        $data['order'] = BoardList::where('project_id', $project->id)->count();
 
         $list = BoardList::create($data);
         $list->tasks = [];
@@ -28,6 +31,8 @@ class BoardListController extends Controller
 
     public function update(Request $request, BoardList $boardList): JsonResponse
     {
+        abort_unless($boardList->project && $request->user()->canAccessProject($boardList->project), 403);
+
         $data = $request->validate([
             'title'   => 'sometimes|string|max:200',
             'is_done' => 'nullable|boolean',
@@ -42,13 +47,20 @@ class BoardListController extends Controller
     {
         $items = $request->validate(['items' => 'required|array']);
         foreach ($items['items'] as $item) {
+            $list = BoardList::find($item['id']);
+            if ($list) {
+                abort_unless($list->project && $request->user()->canAccessProject($list->project), 403);
+            }
+
             BoardList::where('id', $item['id'])->update(['order' => $item['order']]);
         }
         return response()->json(['message' => 'Order updated']);
     }
 
-    public function archive(BoardList $boardList): JsonResponse
+    public function archive(Request $request, BoardList $boardList): JsonResponse
     {
+        abort_unless($boardList->project && $request->user()->canAccessProject($boardList->project), 403);
+
         $boardList->update(['is_archive' => 1]);
         return response()->json(['message' => 'Archived']);
     }

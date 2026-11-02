@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Comments extends Model
 {
+    protected $table = 'comments';
     protected $fillable = ['task_id', 'user_id', 'details'];
 
     public function task(): BelongsTo { return $this->belongsTo(Task::class); }

@@ -28,7 +28,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -55,6 +55,20 @@ class RegisterController extends Controller
     }
 
     /**
+     * Get the post-register redirect path, honoring a safe local redirect.
+     */
+    protected function redirectTo(): string
+    {
+        $redirect = request()->input('redirect');
+
+        if (is_string($redirect) && str_starts_with($redirect, '/') && ! str_starts_with($redirect, '//')) {
+            return $redirect;
+        }
+
+        return '/';
+    }
+
+    /**
      * Create a new user instance after a valid registration.
      *
      * @return User
@@ -65,6 +79,7 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => 'user',
         ]);
     }
 }

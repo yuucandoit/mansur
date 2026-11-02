@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ config('app.name') }}</title>
+<title>{{ config('app.name', 'Protask') }}</title>
 </head>
 <body>
 <div class="login-wrapper">
 
   <div class="left-panel">
     <div class="logo-area">
-      <div class="logo-mark">{{Str::of(config('app.name'))->explode(' ')->map(fn($n) => Str::substr($n, 0, 1))->join('') }}</div>
+      <div class="logo-mark">{{ Str::of(config('app.name', 'ProTask'))->explode(' ')->map(fn($n) => Str::substr($n, 0, 1))->join('') }}</div>
       <div>
         <div class="logo-text">Protask</div>
         <div class="logo-sub">Team Plan</div>
@@ -31,8 +33,8 @@
         <div class="field-group">
             <label class="field-label">Password</label>
             <div class="field-input-wrap">
-            <input class="field-input" type="password" id="pass-input" placeholder="••••••••" id="pass_input" />
-            <button class="eye-btn" onclick="togglePass()" id="eye-btn">
+            <input class="field-input" type="password" id="pass-input" placeholder="••••••••" />
+            <button class="eye-btn" type="button" onclick="togglePass()" id="eye-btn">
                 <i class="fas fa-eye" id="eye-icon"></i>
             </button>
             </div>
@@ -41,11 +43,10 @@
             </div>
         </div>
 
-        <button class="btn-login" id="btn-submit">Sign in</button>
-
+        <button class="btn-login" id="btn-submit" type="button">Sign in</button>
 
         <div class="signup-row">
-            Don't have an account? <a href="#">Sign up free</a>
+            Don't have an account? <a href="{{ route('register', request()->filled('redirect') ? ['redirect' => request('redirect')] : []) }}">Sign up free</a>
         </div>
     </div>
 
@@ -129,4 +130,3 @@
 <script src="{{ asset('js/login.js') }}"></script>
 </body>
 </html>
-

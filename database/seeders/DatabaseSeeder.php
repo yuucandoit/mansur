@@ -17,8 +17,10 @@ class DatabaseSeeder extends Seeder
         // Create a default user if not exists
         $user = User::firstOrCreate(
             ['email' => 'admin@protask.local'],
-            ['name' => 'Admin', 'password' => bcrypt('password')]
+            ['name' => 'Admin', 'password' => bcrypt('password'), 'role' => 'admin']
         );
+
+        $user->update(['role' => 'admin']);
 
         // Workspaces
         $ws1 = Workspace::create(['name' => 'Design & Development', 'slug' => 'design-dev', 'user_id' => $user->id, 'description' => 'Frontend, UI/UX, and full-stack projects']);

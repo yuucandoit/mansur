@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Labels extends Model
 {
-    protected $fillable = ['task_id', 'name', 'color'];
+    public $timestamps = false;
 
-    public function task(): BelongsTo { return $this->belongsTo(Task::class); }
+    protected $fillable = ['task_id', 'name', 'color', 'color_name'];
+
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
+    }
 }
