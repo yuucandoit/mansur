@@ -100,6 +100,8 @@ Route::middleware(['auth'])->group(function(){
 
     // User preferences (settings sheet)
     Route::patch('/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
+    Route::patch('/preferences/telegram', [PreferenceController::class, 'updateTelegram'])->name('preferences.telegram.update');
+    Route::post('/preferences/telegram/test', [PreferenceController::class, 'testTelegram'])->name('preferences.telegram.test');
 
     // Administration (global admin only)
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
@@ -152,3 +154,6 @@ Route::middleware(['auth'])->group(function(){
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Telegram Bot Webhook (CSRF-exempt in bootstrap/app.php, protected via secret header)
+Route::post('/telegram/webhook', [App\Http\Controllers\TelegramWebhookController::class, 'handle'])->name('telegram.webhook');

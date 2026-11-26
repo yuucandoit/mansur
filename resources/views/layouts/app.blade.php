@@ -466,6 +466,44 @@
                 </label>
             </div>
         </div>
+
+        <!-- Telegram Bot Integration -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Telegram Integration</h3>
+                <span id="telegramLinkBadge" class="badge {{ Auth::user()->telegram_user_id ? 'badge-outline text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : 'badge-muted' }} text-[10px]">
+                    {{ Auth::user()->telegram_user_id ? 'Linked' : 'Not linked' }}
+                </span>
+            </div>
+            <div class="p-3.5 rounded-xl border border-border bg-card space-y-3">
+                <div class="space-y-1.5">
+                    <label for="prefTelegramUserId" class="text-[11px] font-medium text-foreground">Telegram User ID</label>
+                    <input type="text"
+                           id="prefTelegramUserId"
+                           inputmode="numeric"
+                           value="{{ Auth::user()->telegram_user_id ?? '' }}"
+                           placeholder="e.g. 123456789"
+                           class="form-input text-xs h-9 font-mono">
+                    <p class="text-[11px] text-muted-foreground leading-relaxed">
+                        Kirim <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/start</code> atau <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/id</code> ke bot Telegram untuk mendapatkan User ID kamu.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            id="saveTelegramBtn"
+                            onclick="saveTelegramUserId()"
+                            class="btn btn-primary btn-sm text-xs flex-1">
+                        Save ID
+                    </button>
+                    <button type="button"
+                            id="testTelegramBtn"
+                            onclick="testTelegramConnection()"
+                            class="btn btn-outline btn-sm text-xs">
+                        Test Bot
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -524,6 +562,72 @@ async function savePreference(key, value) {
         window.showToast('Preference saved.', 'success');
     } catch {
         window.showToast('Network error, please try again.', 'error');
+    }
+}
+
+async function saveTelegramUserId() {
+    const input = document.getElementById('prefTelegramUserId');
+    const btn = document.getElementById('saveTelegramBtn');
+    const badge = document.getElementById('telegramLinkBadge');
+    const telegramUserId = (input?.value || '').trim();
+
+    if (btn) btn.disabled = true;
+
+    try {
+        const res = await fetch('{{ route('preferences.telegram.update') }}', {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ telegram_user_id: telegramUserId || null })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            const firstErr = data.errors?.telegram_user_id?.[0];
+            window.showToast(firstErr || data.message || 'Could not save Telegram User ID.', 'error');
+            return;
+        }
+
+        if (badge) {
+            if (data.telegram_user_id) {
+                badge.textContent = 'Linked';
+                badge.className = 'badge badge-outline text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]';
+            } else {
+                badge.textContent = 'Not linked';
+                badge.className = 'badge badge-muted text-[10px]';
+            }
+        }
+
+        window.showToast(data.message || 'Telegram User ID saved.', 'success');
+    } catch {
+        window.showToast('Network error, please try again.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function testTelegramConnection() {
+    const btn = document.getElementById('testTelegramBtn');
+    if (btn) btn.disabled = true;
+
+    try {
+        const res = await fetch('{{ route('preferences.telegram.test') }}', {
+            method: 'POST',
+            headers
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            window.showToast(data.message || 'Could not reach Telegram.', 'error');
+            return;
+        }
+
+        window.showToast(data.message || 'Test message sent!', 'success');
+    } catch {
+        window.showToast('Network error, please try again.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }
 
