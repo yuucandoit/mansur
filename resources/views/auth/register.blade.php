@@ -17,13 +17,14 @@
         if (theme === 'dark') document.documentElement.classList.add('dark');
     </script>
 </head>
-<body class="h-full bg-background text-foreground antialiased font-sans flex items-center justify-center p-4">
+<body class="min-h-screen bg-background text-foreground antialiased font-sans flex items-center justify-center px-4 py-10">
 
     <!-- Top Right Theme Toggle -->
-    <div class="fixed top-4 right-4">
+    <div class="fixed top-4 right-4 z-10">
         <button type="button" 
                 onclick="toggleThemeMode()" 
                 id="authThemeBtn"
+                aria-label="Toggle theme"
                 class="btn btn-outline btn-icon h-9 w-9 text-muted-foreground hover:text-foreground">
             <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
             <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
@@ -31,7 +32,7 @@
     </div>
 
     <!-- Register Container / shadcn Card -->
-    <div class="w-full max-w-sm space-y-6">
+    <div class="w-full max-w-[400px] space-y-6">
         <!-- Brand Header -->
         <div class="text-center space-y-2">
             <div class="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm mx-auto shadow-xs">
@@ -44,9 +45,9 @@
         </div>
 
         <!-- Auth Card -->
-        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div class="rounded-xl border border-border bg-card p-6 sm:p-7 shadow-sm">
             @if ($errors->any())
-            <div class="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive mb-4 space-y-1">
+            <div class="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive mb-5 space-y-1">
                 @foreach ($errors->all() as $error)
                 <p class="flex items-center gap-1.5">
                     <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
@@ -64,7 +65,7 @@
 
                 <!-- Name -->
                 <div class="space-y-1.5">
-                    <label for="name" class="text-xs font-medium text-foreground">Full Name</label>
+                    <label for="name" class="block text-xs font-medium text-foreground">Full Name</label>
                     <input id="name" 
                            type="text" 
                            name="name" 
@@ -72,59 +73,61 @@
                            required 
                            autofocus 
                            placeholder="John Doe"
-                           class="form-input text-xs @error('name') border-destructive @enderror">
+                           class="form-input h-10 px-3.5 text-sm rounded-lg @error('name') border-destructive @enderror">
                 </div>
 
                 <!-- Email -->
                 <div class="space-y-1.5">
-                    <label for="email" class="text-xs font-medium text-foreground">Email Address</label>
+                    <label for="email" class="block text-xs font-medium text-foreground">Email Address</label>
                     <input id="email" 
                            type="email" 
                            name="email" 
                            value="{{ old('email') }}" 
                            required 
                            placeholder="name@example.com"
-                           class="form-input text-xs @error('email') border-destructive @enderror">
+                           class="form-input h-10 px-3.5 text-sm rounded-lg @error('email') border-destructive @enderror">
                 </div>
 
                 <!-- Password -->
                 <div class="space-y-1.5">
-                    <label for="password" class="text-xs font-medium text-foreground">Password</label>
+                    <label for="password" class="block text-xs font-medium text-foreground">Password</label>
                     <div class="relative">
                         <input id="password" 
                                type="password" 
                                name="password" 
                                required 
                                placeholder="Min. 8 characters"
-                               class="form-input text-xs pr-10 @error('password') border-destructive @enderror">
+                               class="form-input h-10 pl-3.5 pr-10 text-sm rounded-lg @error('password') border-destructive @enderror">
                         <button type="button" 
                                 onclick="togglePasswordVisibility('password', this)"
-                                class="btn btn-ghost p-1 h-7 w-7 text-muted-foreground hover:text-foreground absolute right-1.5 top-1/2 -translate-y-1/2">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                aria-label="Toggle password visibility"
+                                class="btn btn-ghost p-0 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground absolute right-1 top-1/2 -translate-y-1/2">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Confirm Password -->
                 <div class="space-y-1.5">
-                    <label for="password_confirmation" class="text-xs font-medium text-foreground">Confirm Password</label>
+                    <label for="password_confirmation" class="block text-xs font-medium text-foreground">Confirm Password</label>
                     <div class="relative">
                         <input id="password_confirmation" 
                                type="password" 
                                name="password_confirmation" 
                                required 
                                placeholder="Repeat password"
-                               class="form-input text-xs pr-10">
+                               class="form-input h-10 pl-3.5 pr-10 text-sm rounded-lg">
                         <button type="button" 
                                 onclick="togglePasswordVisibility('password_confirmation', this)"
-                                class="btn btn-ghost p-1 h-7 w-7 text-muted-foreground hover:text-foreground absolute right-1.5 top-1/2 -translate-y-1/2">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                aria-label="Toggle password confirmation visibility"
+                                class="btn btn-ghost p-0 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground absolute right-1 top-1/2 -translate-y-1/2">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-full text-xs py-2">
+                <button type="submit" class="btn btn-primary w-full h-10 text-sm font-medium rounded-lg mt-2">
                     <span>Create Account</span>
                 </button>
             </form>
@@ -142,13 +145,13 @@
 <script>
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
-    const icon = btn.querySelector('i');
+    if (!input) return;
     if (input.type === 'password') {
         input.type = 'text';
-        icon.setAttribute('data-lucide', 'eye-off');
+        btn.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4"></i>';
     } else {
         input.type = 'password';
-        icon.setAttribute('data-lucide', 'eye');
+        btn.innerHTML = '<i data-lucide="eye" class="w-4 h-4"></i>';
     }
     window.lucide?.render();
 }

@@ -99,6 +99,7 @@
   background: hsl(var(--muted-foreground) / 0.4);
 }
 
+@layer components {
 /* ── shadcn Component Helpers ── */
 .btn {
   display: inline-flex;
@@ -113,6 +114,9 @@
   transition-duration: 150ms;
   outline: none;
   cursor: pointer;
+}
+.btn svg {
+  flex-shrink: 0;
 }
 .btn:focus-visible {
   box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
@@ -435,6 +439,7 @@
   font-size: 0.875rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   animation: toastIn 200ms ease-out;
+}
 }
 @keyframes toastIn {
   from {

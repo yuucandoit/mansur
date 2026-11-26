@@ -99,25 +99,25 @@
                  class="hidden absolute bottom-full left-0 right-0 mb-2 z-40 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg max-h-64 overflow-y-auto p-1.5">
             </div>
 
-            <div class="flex items-end gap-2">
+            <div class="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-xs focus-within:border-ring focus-within:ring-1 focus-within:ring-ring transition-colors">
                 <button type="button"
                         id="aiMentionTriggerBtn"
                         onclick="aiTriggerMentionAtCursor()"
                         title="Tag project or task (@)"
-                        class="btn btn-outline h-11 w-11 p-0 shrink-0 text-muted-foreground hover:text-foreground"
+                        class="btn btn-ghost h-9 w-9 p-0 shrink-0 rounded-xl text-muted-foreground hover:text-foreground"
                         {{ $configured ? '' : 'disabled' }}>
                     <i data-lucide="at-sign" class="w-4 h-4"></i>
                 </button>
                 <textarea id="aiInput"
                           rows="1"
                           placeholder="Ask {{ $assistantName }}... Type @ to tag a project or task, then add your todo list (1. ... 2. ...)"
-                          class="form-textarea text-sm resize-none min-h-[44px] max-h-40 py-2.5"
+                          class="w-full bg-transparent border-0 outline-none focus:ring-0 text-sm text-foreground placeholder:text-muted-foreground resize-none min-h-[36px] max-h-40 py-2 px-1 leading-relaxed"
                           {{ $configured ? '' : 'disabled' }}></textarea>
                 <button type="submit"
                         id="aiSendBtn"
-                        class="btn btn-primary h-11 px-4 shrink-0"
+                        class="btn btn-primary h-9 px-3.5 rounded-xl shrink-0 text-xs"
                         {{ $configured ? '' : 'disabled' }}>
-                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
                     <span class="hidden sm:inline">Send</span>
                 </button>
             </div>
