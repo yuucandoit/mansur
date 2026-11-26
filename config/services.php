@@ -44,6 +44,7 @@ return [
 
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BOT_USERNAME', 'LunaProtaskBot'),
         'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
         'digest_timezone' => env('TELEGRAM_DIGEST_TIMEZONE', 'Asia/Jakarta'),
     ],

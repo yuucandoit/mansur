@@ -389,60 +389,67 @@
 <div class="sheet-overlay" id="settingsSheetOverlay" onclick="closeSettingsSheet()"></div>
 <div class="sheet-panel" id="settingsSheet">
     <!-- Header -->
-    <div class="h-14 px-5 border-b border-border flex items-center justify-between shrink-0 bg-muted/10">
-        <div class="flex items-center gap-2">
-            <i data-lucide="settings" class="w-4 h-4 text-muted-foreground"></i>
-            <span class="font-semibold text-sm text-foreground">Workspace Settings</span>
+    <div class="h-14 px-5 border-b border-border flex items-center justify-between shrink-0 bg-card">
+        <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-muted flex items-center justify-center text-foreground">
+                <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+            </div>
+            <div>
+                <h2 class="font-semibold text-sm text-foreground leading-none">Workspace Settings</h2>
+                <p class="text-[11px] text-muted-foreground mt-0.5">Preferences &amp; integrations</p>
+            </div>
         </div>
-        <button type="button" 
-                onclick="closeSettingsSheet()" 
-                class="btn btn-ghost p-1.5 h-8 w-8 text-muted-foreground hover:text-foreground">
+        <button type="button"
+                onclick="closeSettingsSheet()"
+                aria-label="Close settings"
+                class="btn btn-ghost p-0 h-8 w-8 rounded-md text-muted-foreground hover:text-foreground">
             <i data-lucide="x" class="w-4 h-4"></i>
         </button>
     </div>
 
     <!-- Body -->
-    <div class="flex-1 overflow-y-auto p-5 space-y-6 text-xs">
+    <div class="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
         <!-- Appearance Settings -->
-        <div class="space-y-3">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Appearance</h3>
+        <section class="space-y-2">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5">Appearance</h3>
             <div class="p-3.5 rounded-xl border border-border bg-card space-y-3">
                 <div>
                     <div class="font-medium text-foreground">Theme Mode</div>
                     <div class="text-[11px] text-muted-foreground">Choose interface appearance</div>
                 </div>
-                <div class="flex items-center gap-2 pt-1">
-                    <button type="button" onclick="window.setTheme('light')" class="btn btn-outline btn-sm flex-1 text-xs">
-                        <i data-lucide="sun" class="w-3.5 h-3.5"></i> Light
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="window.setTheme('light')" class="btn btn-outline btn-sm h-8.5 w-full text-xs">
+                        <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                        <span>Light</span>
                     </button>
-                    <button type="button" onclick="window.setTheme('dark')" class="btn btn-outline btn-sm flex-1 text-xs">
-                        <i data-lucide="moon" class="w-3.5 h-3.5"></i> Dark
+                    <button type="button" onclick="window.setTheme('dark')" class="btn btn-outline btn-sm h-8.5 w-full text-xs">
+                        <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                        <span>Dark</span>
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Account / Profile -->
-        <div class="space-y-3">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Account Information</h3>
-            <div class="p-3.5 rounded-xl border border-border bg-card space-y-2.5">
-                <div>
-                    <label class="text-[11px] text-muted-foreground">Name</label>
-                    <div class="font-medium text-foreground text-xs">{{ Auth::user()->name ?? 'User' }}</div>
+        <section class="space-y-2">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5">Account</h3>
+            <div class="p-3.5 rounded-xl border border-border bg-card flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
+                    {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </div>
-                <div>
-                    <label class="text-[11px] text-muted-foreground">Email</label>
-                    <div class="font-medium text-foreground text-xs">{{ Auth::user()->email ?? '—' }}</div>
+                <div class="min-w-0 flex-1">
+                    <div class="font-semibold text-foreground text-xs truncate">{{ Auth::user()->name ?? 'User' }}</div>
+                    <div class="text-[11px] text-muted-foreground truncate">{{ Auth::user()->email ?? '—' }}</div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Preferences -->
-        <div class="space-y-3">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Preferences</h3>
-            <div class="p-3.5 rounded-xl border border-border bg-card space-y-3">
-                <label class="flex items-center justify-between cursor-pointer">
-                    <div>
+        <section class="space-y-2">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-0.5">Preferences</h3>
+            <div class="rounded-xl border border-border bg-card divide-y divide-border/60">
+                <label class="flex items-center justify-between gap-3 p-3.5 cursor-pointer hover:bg-muted/20 transition-colors rounded-t-xl">
+                    <div class="min-w-0">
                         <div class="font-medium text-foreground">Task Notifications</div>
                         <div class="text-[11px] text-muted-foreground">Receive updates for task assignments</div>
                     </div>
@@ -450,11 +457,10 @@
                            id="prefTaskNotifications"
                            @checked(Auth::user()->task_notifications)
                            onchange="savePreference('task_notifications', this.checked)"
-                           class="shadcn-checkbox">
+                           class="shadcn-checkbox shrink-0">
                 </label>
-                <div class="h-px bg-border/60"></div>
-                <label class="flex items-center justify-between cursor-pointer">
-                    <div>
+                <label class="flex items-center justify-between gap-3 p-3.5 cursor-pointer hover:bg-muted/20 transition-colors rounded-b-xl">
+                    <div class="min-w-0">
                         <div class="font-medium text-foreground">Compact Cards</div>
                         <div class="text-[11px] text-muted-foreground">Hide descriptions and tighten task cards</div>
                     </div>
@@ -462,22 +468,45 @@
                            id="prefCompactCards"
                            @checked(Auth::user()->compact_cards)
                            onchange="savePreference('compact_cards', this.checked)"
-                           class="shadcn-checkbox">
+                           class="shadcn-checkbox shrink-0">
                 </label>
             </div>
-        </div>
+        </section>
 
         <!-- Telegram Bot Integration -->
-        <div class="space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Telegram Integration</h3>
+        @php
+            $tgBotUsername = ltrim((string) config('services.telegram.bot_username', 'LunaProtaskBot'), '@');
+            $tgBotUrl = 'https://t.me/' . $tgBotUsername;
+        @endphp
+        <section class="space-y-2">
+            <div class="flex items-center justify-between px-0.5">
+                <h3 class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Telegram Integration</h3>
                 <span id="telegramLinkBadge" class="badge {{ Auth::user()->telegram_user_id ? 'badge-outline text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : 'badge-muted' }} text-[10px]">
                     {{ Auth::user()->telegram_user_id ? 'Linked' : 'Not linked' }}
                 </span>
             </div>
-            <div class="p-3.5 rounded-xl border border-border bg-card space-y-3">
-                <div class="space-y-1.5">
-                    <label for="prefTelegramUserId" class="text-[11px] font-medium text-foreground">Telegram User ID</label>
+
+            <div class="p-3.5 rounded-xl border border-border bg-card space-y-3.5">
+                <!-- Open Bot Link -->
+                <a href="{{ $tgBotUrl }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="flex items-center justify-between gap-2.5 p-2.5 rounded-lg border border-border bg-muted/40 hover:bg-accent/60 transition-colors group">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-7 h-7 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-medium text-foreground text-xs truncate">Open Telegram Bot</div>
+                            <div class="text-[11px] text-sky-600 dark:text-sky-400 font-medium truncate group-hover:underline">{{ '@' . $tgBotUsername }}</div>
+                        </div>
+                    </div>
+                    <i data-lucide="external-link" class="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground shrink-0"></i>
+                </a>
+
+                <!-- Telegram User ID Form -->
+                <div class="space-y-2">
+                    <label for="prefTelegramUserId" class="block text-[11px] font-medium text-foreground">Telegram User ID</label>
                     <input type="text"
                            id="prefTelegramUserId"
                            inputmode="numeric"
@@ -485,30 +514,33 @@
                            placeholder="e.g. 123456789"
                            class="form-input text-xs h-9 font-mono">
                     <p class="text-[11px] text-muted-foreground leading-relaxed">
-                        Kirim <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/start</code> atau <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/id</code> ke bot Telegram untuk mendapatkan User ID kamu.
+                        Buka <a href="{{ $tgBotUrl }}" target="_blank" rel="noopener noreferrer" class="font-medium text-primary underline underline-offset-2">{{ '@' . $tgBotUsername }}</a> lalu kirim <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/start</code> atau <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/id</code> untuk mendapatkan User ID kamu.
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
+
+                <div class="grid grid-cols-2 gap-2">
                     <button type="button"
                             id="saveTelegramBtn"
                             onclick="saveTelegramUserId()"
-                            class="btn btn-primary btn-sm text-xs flex-1">
-                        Save ID
+                            class="btn btn-primary btn-sm h-8.5 w-full text-xs">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        <span>Save ID</span>
                     </button>
                     <button type="button"
                             id="testTelegramBtn"
                             onclick="testTelegramConnection()"
-                            class="btn btn-outline btn-sm text-xs">
-                        Test Bot
+                            class="btn btn-outline btn-sm h-8.5 w-full text-xs">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Test Bot</span>
                     </button>
                 </div>
 
                 <div class="h-px bg-border/60"></div>
 
                 <!-- Daily Digest Schedule -->
-                <div class="space-y-2.5">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <div>
+                <div class="space-y-3">
+                    <label class="flex items-center justify-between gap-3 cursor-pointer">
+                        <div class="min-w-0">
                             <div class="font-medium text-foreground">Daily Task Digest</div>
                             <div class="text-[11px] text-muted-foreground">Ingatkan tugas aktif tiap pagi &amp; sore (WIB)</div>
                         </div>
@@ -516,52 +548,54 @@
                                id="prefTelegramDigestEnabled"
                                @checked(Auth::user()->telegram_digest_enabled)
                                onchange="saveTelegramDigest()"
-                               class="shadcn-checkbox">
+                               class="shadcn-checkbox shrink-0">
                     </label>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-1">
-                            <label for="prefTelegramMorning" class="text-[11px] text-muted-foreground">Pagi (Morning)</label>
+                            <label for="prefTelegramMorning" class="block text-[11px] text-muted-foreground">Pagi (Morning)</label>
                             <input type="time"
                                    id="prefTelegramMorning"
                                    value="{{ Auth::user()->telegram_digest_morning ?? '08:00' }}"
-                                   class="form-input text-xs h-8 font-mono">
+                                   class="form-input text-xs h-9 font-mono">
                         </div>
                         <div class="space-y-1">
-                            <label for="prefTelegramEvening" class="text-[11px] text-muted-foreground">Sore (Evening)</label>
+                            <label for="prefTelegramEvening" class="block text-[11px] text-muted-foreground">Sore (Evening)</label>
                             <input type="time"
                                    id="prefTelegramEvening"
                                    value="{{ Auth::user()->telegram_digest_evening ?? '17:00' }}"
-                                   class="form-input text-xs h-8 font-mono">
+                                   class="form-input text-xs h-9 font-mono">
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="grid grid-cols-2 gap-2">
                         <button type="button"
                                 id="saveDigestBtn"
                                 onclick="saveTelegramDigest()"
-                                class="btn btn-outline btn-sm text-xs flex-1">
-                            Save Schedule
+                                class="btn btn-outline btn-sm h-8.5 w-full text-xs">
+                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                            <span>Save Schedule</span>
                         </button>
                         <button type="button"
                                 id="sendDigestNowBtn"
                                 onclick="sendTelegramDigestNow()"
-                                class="btn btn-secondary btn-sm text-xs">
-                            Send Digest Now
+                                class="btn btn-secondary btn-sm h-8.5 w-full text-xs">
+                            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
+                            <span>Send Now</span>
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-border bg-muted/20 flex items-center justify-between shrink-0">
-        <button type="button" onclick="logout()" class="btn btn-ghost btn-sm text-destructive hover:bg-destructive/10 text-xs">
+    <div class="px-5 py-3.5 border-t border-border bg-muted/20 flex items-center justify-between gap-2 shrink-0">
+        <button type="button" onclick="logout()" class="btn btn-ghost btn-sm h-8 text-destructive hover:bg-destructive/10 text-xs">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
             <span>Log out</span>
         </button>
-        <button type="button" onclick="closeSettingsSheet()" class="btn btn-primary btn-sm text-xs">
+        <button type="button" onclick="closeSettingsSheet()" class="btn btn-primary btn-sm h-8 px-4 text-xs">
             Done
         </button>
     </div>
