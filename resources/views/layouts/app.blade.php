@@ -50,17 +50,17 @@
         </a>
         <div class="flex items-center gap-1">
             <button type="button" 
-                    class="btn btn-ghost p-1.5 h-9 w-9 text-muted-foreground hover:text-foreground"
+                    class="btn btn-ghost p-0 h-8 w-8 text-muted-foreground hover:text-foreground"
                     title="Create new project"
                     onclick="window.openModal('newProjectModal')">
-                <i data-lucide="plus" class="w-12 h-12"></i>
+                <i data-lucide="plus" class="w-4 h-4"></i>
             </button>
             <button type="button" 
-                    class="btn btn-ghost p-1.5 h-9 w-9 text-muted-foreground hover:text-foreground" 
+                    class="btn btn-ghost p-0 h-8 w-8 text-muted-foreground hover:text-foreground" 
                     onclick="toggleSidebar()"
                     title="Toggle sidebar">
-                <i data-lucide="x" class="w-12 h-12 md:hidden"></i>
-                <i data-lucide="menu" class="w-12 h-12 hidden md:block"></i>
+                <i data-lucide="x" class="w-4 h-4 md:hidden"></i>
+                <i data-lucide="menu" class="w-4 h-4 hidden md:block"></i>
             </button>
         </div>
     </div>
