@@ -60,10 +60,7 @@ class TelegramBotHandler
 
         if ($command === '/digest') {
             if (! $user) {
-                $this->telegram->sendMessage(
-                    $chatId,
-                    "Akun Telegram kamu (User ID: {$fromId}) belum terhubung ke ProTask. Tambahkan di Settings → Telegram Integration terlebih dahulu."
-                );
+                $this->replyNotLinked($chatId, $fromId);
                 return;
             }
 
@@ -73,11 +70,7 @@ class TelegramBotHandler
         }
 
         if (! $user) {
-            $this->telegram->sendMessage(
-                $chatId,
-                "Akun Telegram kamu (User ID: {$fromId}) belum terhubung ke akun ProTask.\n\n"
-                ."Buka ProTask → Settings → Telegram Integration, masukkan User ID {$fromId}, lalu klik Save."
-            );
+            $this->replyNotLinked($chatId, $fromId);
             return;
         }
 
@@ -127,14 +120,24 @@ class TelegramBotHandler
             return;
         }
 
+        $this->replyNotLinked($chatId, $fromId);
+    }
+
+    private function replyNotLinked(string $chatId, string $fromId): void
+    {
+        $appUrl = rtrim((string) config('app.url', 'https://protask.rexensoft.com'), '/');
+        if (str_contains($appUrl, 'localhost') || str_contains($appUrl, '127.0.0.1')) {
+            $appUrl = 'https://protask.rexensoft.com';
+        }
+
         $this->telegram->sendMessage(
             $chatId,
-            "Halo! Ini adalah bot ProTask (" . AiSettings::name() . ").\n\n"
-            ."Telegram User ID kamu adalah:\n{$fromId}\n\n"
-            ."Cara menghubungkan:\n"
-            ."1. Buka ProTask di browser\n"
-            ."2. Klik menu Settings di sidebar kiri\n"
-            ."3. Masukkan {$fromId} pada kolom Telegram User ID lalu klik Save."
+            "Kamu belum setup Telegram User ID kamu di ProTask.\n\n"
+            ."Telegram User ID kamu: {$fromId}\n\n"
+            ."Cara setup:\n"
+            ."1. Cari tahu User ID kamu di @userinfobot (atau salin ID di atas: {$fromId})\n"
+            ."2. Login ke aplikasi {$appUrl}\n"
+            ."3. Buka Settings → Telegram Integration → Telegram User ID, masukkan {$fromId}, lalu klik Save ID."
         );
     }
 

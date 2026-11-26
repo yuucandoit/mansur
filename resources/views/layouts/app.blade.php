@@ -514,7 +514,7 @@
                            placeholder="e.g. 123456789"
                            class="form-input text-xs h-9 font-mono">
                     <p class="text-[11px] text-muted-foreground leading-relaxed">
-                        Buka <a href="{{ $tgBotUrl }}" target="_blank" rel="noopener noreferrer" class="font-medium text-primary underline underline-offset-2">{{ '@' . $tgBotUsername }}</a> lalu kirim <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/start</code> atau <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/id</code> untuk mendapatkan User ID kamu.
+                        Buka <a href="{{ $tgBotUrl }}" target="_blank" rel="noopener noreferrer" class="font-medium text-primary underline underline-offset-2">{{ '@' . $tgBotUsername }}</a> lalu kirim <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/start</code> / <code class="px-1 py-0.5 rounded bg-muted text-foreground font-mono text-[10px]">/id</code>, atau cek via <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="font-medium text-primary underline underline-offset-2">@userinfobot</a>.
                     </p>
                 </div>
 
