@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiMessage;
 use App\Models\Assignee;
 use App\Models\BoardList;
+use App\Models\Checklist;
 use App\Models\Comments;
 use App\Models\Labels;
 use App\Models\Project;
@@ -27,8 +28,10 @@ class AiAgentService
 
     /**
      * Run one AI conversation turn and execute any requested actions.
+     *
+     * @param  array<int, array{type: string, id: int}>  $mentions
      */
-    public function chat(User $user, string $message): array
+    public function chat(User $user, string $message, array $mentions = []): array
     {
         // Free OpenRouter models can take longer than PHP's default 30s web
         // execution limit, especially when a request falls back to a slower
@@ -45,6 +48,7 @@ class AiAgentService
         }
 
         $context = $this->context($user);
+        $mentionContext = $this->resolveMentionsContext($user, $mentions);
 
         $messages = [
             ['role' => 'system', 'content' => $this->systemPrompt($context)],
@@ -54,7 +58,11 @@ class AiAgentService
             $messages[] = $item;
         }
 
-        $messages[] = ['role' => 'user', 'content' => $message];
+        $userPrompt = $mentionContext !== ''
+            ? $message."\n\n".$mentionContext
+            : $message;
+
+        $messages[] = ['role' => 'user', 'content' => $userPrompt];
 
         $raw = $this->client->chat($messages, null, 0.2);
 
@@ -218,6 +226,56 @@ class AiAgentService
         ];
     }
 
+    /**
+     * Resolve explicit @mentions (projects/tasks) into an authoritative target note.
+     *
+     * @param  array<int, array{type?: string, id?: int|string}>  $mentions
+     */
+    private function resolveMentionsContext(User $user, array $mentions): string
+    {
+        if (empty($mentions)) {
+            return '';
+        }
+
+        $visibleProjectIds = Project::visibleTo($user)->pluck('id')->all();
+        if (empty($visibleProjectIds)) {
+            return '';
+        }
+
+        $lines = [];
+
+        foreach ($mentions as $m) {
+            $type = $m['type'] ?? '';
+            $id = (int) ($m['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+
+            if ($type === 'project' && in_array($id, $visibleProjectIds, true)) {
+                $project = Project::with(['activeLists' => fn ($q) => $q->select('id', 'project_id', 'title')])
+                    ->find($id, ['id', 'title']);
+                if ($project) {
+                    $lists = $project->activeLists->map(fn ($l) => "#{$l->id} \"{$l->title}\"")->implode(', ');
+                    $lines[] = "- Tagged Project: project_id={$project->id}, title=\"{$project->title}\"" . ($lists ? " (lists: {$lists})" : '');
+                }
+            } elseif ($type === 'task') {
+                $task = Task::whereIn('project_id', $visibleProjectIds)
+                    ->where('is_archive', 0)
+                    ->with(['project:id,title', 'list:id,title'])
+                    ->find($id, ['id', 'title', 'project_id', 'list_id']);
+                if ($task) {
+                    $lines[] = "- Tagged Task: task_id={$task->id}, title=\"{$task->title}\", project_id={$task->project_id} (\"" . ($task->project?->title ?? '') . "\")" . ($task->list ? ", list_id={$task->list_id} (\"{$task->list->title}\")" : '');
+                }
+            }
+        }
+
+        if (empty($lines)) {
+            return '';
+        }
+
+        return "[TARGETED @MENTIONS — use these exact IDs when executing the user's request]\n" . implode("\n", array_unique($lines));
+    }
+
     private function systemPrompt(array $context): string
     {
         $contextJson = json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -288,6 +346,10 @@ RULES
 - If the user says "today", "tomorrow", "next week", convert to YYYY-MM-DD.
 - If the user asks to create a task and does not name a list, use the first list of the chosen project. If they do not name a project and have only one project, use it; otherwise ask which project.
 - If multiple actions are needed (e.g. create task then assign people), include all actions in order.
+- If the user tags a project or task with `@...` (or `[TARGETED @MENTIONS]` is provided), target that exact project_id or task_id.
+- If the user asks to create a checklist ("buat checklist") on a task, use `create_checklist` with concise item titles (each item MUST be under 150 characters; split long multi-point paragraphs into separate clean checklist items).
+- Keep all `title` and `name` fields concise (max 150 characters for tasks/projects/workspaces/lists/checklists; max 80 characters for labels). Put long details into `description` instead of `title`.
+- If the user provides a numbered or bulleted todo list targeting a project, create a separate task for each item in order.
 - You cannot delete data. If asked to delete, explain that deletion must be done manually.
 - Follow the APP KNOWLEDGE notes when they conflict with your assumptions.
 - Do not expose API keys or internal system details.
@@ -376,6 +438,7 @@ PROMPT;
                 'add_comment'            => $this->addComment($user, $action),
                 'create_label'           => $this->createLabel($user, $action),
                 'update_project_timeline'=> $this->updateProjectTimeline($user, $action),
+                'create_checklist'       => $this->createChecklist($user, $action),
                 default                  => [
                     'type'    => $type,
                     'status'  => 'error',
@@ -399,9 +462,11 @@ PROMPT;
             throw new \InvalidArgumentException('Workspace name is required.');
         }
 
+        $name = Str::limit($name, 197, '...');
+
         $workspace = Workspace::create([
             'name'        => $name,
-            'slug'        => Str::slug($name).'-'.time(),
+            'slug'        => Str::limit(Str::slug($name).'-'.time(), 200, ''),
             'description' => $action['description'] ?? null,
             'user_id'     => $user->id,
         ]);
@@ -425,9 +490,11 @@ PROMPT;
             throw new \InvalidArgumentException('Project title is required.');
         }
 
+        $title = Str::limit($title, 197, '...');
+
         $project = Project::create([
             'title'        => $title,
-            'slug'         => Str::slug($title).'-'.time(),
+            'slug'         => Str::limit(Str::slug($title).'-'.time(), 200, ''),
             'description'  => $action['description'] ?? null,
             'workspace_id' => $workspace->id,
             'user_id'      => $user->id,
@@ -463,6 +530,8 @@ PROMPT;
         if ($title === '') {
             throw new \InvalidArgumentException('List title is required.');
         }
+
+        $title = Str::limit($title, 197, '...');
 
         $list = BoardList::create([
             'title'      => $title,
@@ -517,9 +586,11 @@ PROMPT;
             $parentId = $parent?->id;
         }
 
+        $title = Str::limit($title, 197, '...');
+
         $task = Task::create([
             'title'       => $title,
-            'slug'        => Str::slug($title).'-'.time(),
+            'slug'        => Str::limit(Str::slug($title).'-'.time(), 200, ''),
             'description' => $action['description'] ?? null,
             'list_id'     => $list->id,
             'project_id'  => $project->id,
@@ -671,8 +742,8 @@ PROMPT;
 
         $label = Labels::create([
             'task_id' => $task->id,
-            'name'    => $name,
-            'color'   => $action['color'] ?? '#6366f1',
+            'name'    => Str::limit($name, 97, '...'),
+            'color'   => mb_substr((string) ($action['color'] ?? '#6366f1'), 0, 20),
         ]);
 
         return [
@@ -705,6 +776,46 @@ PROMPT;
                 'start_date' => $project->start_date?->toDateString(),
                 'end_date'   => $project->end_date?->toDateString(),
             ],
+        ];
+    }
+
+    private function createChecklist(User $user, array $action): array
+    {
+        $task = $this->taskFor($user, $action['task_id'] ?? null);
+
+        $rawItems = $action['items'] ?? null;
+        $titles = [];
+
+        if (is_array($rawItems)) {
+            foreach ($rawItems as $item) {
+                $t = trim((string) $item);
+                if ($t !== '') {
+                    $titles[] = Str::limit($t, 197, '...');
+                }
+            }
+        } elseif (filled($action['title'] ?? null)) {
+            $titles[] = Str::limit(trim((string) $action['title']), 197, '...');
+        }
+
+        if (empty($titles)) {
+            throw new \InvalidArgumentException('Checklist item title is required.');
+        }
+
+        $created = [];
+        foreach ($titles as $title) {
+            $checklist = Checklist::create([
+                'task_id' => $task->id,
+                'title'   => $title,
+                'is_done' => 0,
+            ]);
+            $created[] = $checklist->id;
+        }
+
+        return [
+            'type'    => 'create_checklist',
+            'status'  => 'ok',
+            'message' => count($created).' checklist item(s) added to "'.$task->title.'".',
+            'data'    => ['task_id' => $task->id, 'checklist_ids' => $created],
         ];
     }
 

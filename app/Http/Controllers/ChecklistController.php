@@ -14,7 +14,7 @@ class ChecklistController extends Controller
         abort_unless($task->project && $request->user()->canAccessProject($task->project), 403);
 
         $data = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:200',
         ]);
 
         $checklist = $task->checklists()->create([
@@ -30,7 +30,7 @@ class ChecklistController extends Controller
         abort_unless($checklist->task?->project && $request->user()->canAccessProject($checklist->task->project), 403);
 
         $data = $request->validate([
-            'title'   => 'sometimes|string|max:255',
+            'title'   => 'sometimes|string|max:200',
             'is_done' => 'sometimes|boolean',
         ]);
 

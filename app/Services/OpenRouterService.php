@@ -98,6 +98,7 @@ class OpenRouterService
         return array_values(array_unique(array_filter([
             $model ?: $this->model,
             $this->fallbackModel,
+            'openrouter/free',
         ])));
     }
 
@@ -124,9 +125,20 @@ class OpenRouterService
     /**
      * @param  array<int, array{role: string, content: string}>  $messages
      */
-    private function attempt(array $messages, string $model, float $temperature): ?string
+    private function attempt(array $messages, string $model, float $temperature, bool $includeReasoningEffort = true): ?string
     {
         try {
+            $payload = [
+                'model'       => $model,
+                'messages'    => $messages,
+                'temperature' => $temperature,
+                'max_tokens'  => 8192,
+            ];
+
+            if ($includeReasoningEffort) {
+                $payload['reasoning'] = ['effort' => 'low'];
+            }
+
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer '.$this->apiKey,
                 'HTTP-Referer'  => config('app.url', 'http://localhost'),
@@ -134,15 +146,14 @@ class OpenRouterService
                 'Content-Type'  => 'application/json',
             ])->connectTimeout(10)->timeout($this->requestTimeout())->post(
                 config('services.openrouter.url', 'https://openrouter.ai/api/v1/chat/completions'),
-                [
-                    'model'       => $model,
-                    'messages'    => $messages,
-                    'temperature' => $temperature,
-                    'max_tokens'  => 3000,
-                ],
+                $payload,
             );
 
             $this->lastStatus = $response->status();
+
+            if ($this->lastStatus === 400 && $includeReasoningEffort) {
+                return $this->attempt($messages, $model, $temperature, false);
+            }
 
             if (! $response->successful()) {
                 $this->lastError = (string) (

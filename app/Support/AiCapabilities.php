@@ -12,7 +12,7 @@ class AiCapabilities
      */
     public const SUMMARY = [
         'create workspaces, projects, and board columns',
-        'add tasks with due dates, priorities, and subtasks',
+        'add tasks with due dates, priorities, checklists, and subtasks',
         'assign project members to tasks',
         'organize work with comments and labels',
         'update task details and project timelines',
@@ -42,6 +42,8 @@ class AiCapabilities
    { "type": "create_label", "task_id": number, "name": "string", "color": "#rrggbb" }
 9. update_project_timeline
    { "type": "update_project_timeline", "project_id": number, "start_date": "YYYY-MM-DD|null", "end_date": "YYYY-MM-DD|null" }
+10. create_checklist
+   { "type": "create_checklist", "task_id": number, "items": ["string"] }
 PROMPT;
 
     public static function prompt(): string

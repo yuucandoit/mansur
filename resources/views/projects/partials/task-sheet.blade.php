@@ -64,6 +64,9 @@
 // ── Shared Project & Task JS ──
 let currentTask = null;
 let editingLabelId = null;
+let descriptionQuill = null;
+let descriptionDirty = false;
+let descriptionSaveTimer = null;
 const currentUserId = {{ Auth::id() ?? 'null' }};
 
 function formatRelativeTime(dateStr) {
@@ -544,17 +547,22 @@ function renderTaskPanel(task) {
                 </div>
             </div>
 
-            <!-- 3. Editable Description -->
+            <!-- 3. Editable Description (Quill Rich Text Editor) -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
                     <label class="text-xs font-semibold text-foreground">Description</label>
-                    <span class="text-[10px] text-muted-foreground">Auto-saves on blur</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-muted-foreground" id="descSaveStatus">Auto-saves on blur</span>
+                        <button type="button"
+                                onclick="saveDescriptionNow()"
+                                class="btn btn-outline btn-sm h-6 px-2 text-[11px] rounded">
+                            Save
+                        </button>
+                    </div>
                 </div>
-                <textarea id="editTaskDescription"
-                          rows="4"
-                          placeholder="Add more detailed requirements, instructions, or notes..."
-                          onblur="updateTaskField('description', this.value.trim())"
-                          class="form-textarea text-xs p-3.5 bg-card border border-border rounded-lg leading-relaxed focus:bg-background focus:ring-1 focus:ring-ring resize-y min-h-[100px] shadow-2xs">${escapeHtml(task.description ?? '')}</textarea>
+                <div class="quill-shadcn-wrapper">
+                    <div id="editTaskDescriptionEditor"></div>
+                </div>
             </div>
 
             <!-- 4. Subtasks (Parent-Child) Section -->
@@ -682,6 +690,96 @@ function renderTaskPanel(task) {
     `;
 
     window.lucide?.render();
+    initDescriptionEditor(task.description ?? '');
+}
+
+function initDescriptionEditor(initialContent) {
+    clearTimeout(descriptionSaveTimer);
+    descriptionQuill = null;
+    descriptionDirty = false;
+
+    const container = document.getElementById('editTaskDescriptionEditor');
+    if (!container || !window.Quill) return;
+
+    descriptionQuill = new window.Quill(container, {
+        theme: 'snow',
+        placeholder: 'Add more detailed requirements, instructions, or notes...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ color: [] }, { background: [] }],
+                [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+                ['blockquote', 'code-block', 'link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Normalize pure black/white pasted colors so pasted text adapts cleanly to Light/Dark mode
+    descriptionQuill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => {
+        const color = (node.style?.color || '').replace(/\s+/g, '').toLowerCase();
+        if (color === 'rgb(0,0,0)' || color === '#000' || color === '#000000' || color === 'black' || color === 'windowtext') {
+            delta.ops.forEach(op => {
+                if (op.attributes && op.attributes.color) {
+                    delete op.attributes.color;
+                }
+            });
+        }
+        return delta;
+    });
+
+    if (initialContent) {
+        if (/<[a-z][\s\S]*>/i.test(initialContent)) {
+            descriptionQuill.clipboard.dangerouslyPasteHTML(initialContent);
+        } else {
+            descriptionQuill.setText(initialContent);
+        }
+    }
+
+    descriptionQuill.on('text-change', (_delta, _oldDelta, source) => {
+        if (source !== 'user') return;
+        descriptionDirty = true;
+        const statusEl = document.getElementById('descSaveStatus');
+        if (statusEl) statusEl.textContent = 'Unsaved changes...';
+
+        clearTimeout(descriptionSaveTimer);
+        descriptionSaveTimer = setTimeout(() => {
+            saveDescriptionIfDirty();
+        }, 1500);
+    });
+
+    descriptionQuill.on('selection-change', (range, oldRange) => {
+        if (range === null && oldRange !== null) {
+            saveDescriptionIfDirty();
+        }
+    });
+}
+
+function getQuillDescriptionHtml() {
+    if (!descriptionQuill) return '';
+    if (descriptionQuill.getText().trim().length === 0) return '';
+    return descriptionQuill.root.innerHTML;
+}
+
+async function saveDescriptionIfDirty() {
+    clearTimeout(descriptionSaveTimer);
+    if (!currentTask || !descriptionQuill || !descriptionDirty) return;
+    descriptionDirty = false;
+
+    const statusEl = document.getElementById('descSaveStatus');
+    if (statusEl) statusEl.textContent = 'Saving...';
+
+    await updateTaskField('description', getQuillDescriptionHtml());
+
+    const updatedStatusEl = document.getElementById('descSaveStatus');
+    if (updatedStatusEl) updatedStatusEl.textContent = 'Saved ✓';
+}
+
+async function saveDescriptionNow() {
+    if (!currentTask || !descriptionQuill) return;
+    descriptionDirty = true;
+    await saveDescriptionIfDirty();
 }
 
 // ── UPDATE INDIVIDUAL TASK FIELD (AJAX) ──
@@ -905,6 +1003,10 @@ async function deleteChecklistItem(checklistId) {
 }
 
 function closeTaskPanel() {
+    saveDescriptionIfDirty();
+    clearTimeout(descriptionSaveTimer);
+    descriptionQuill = null;
+    descriptionDirty = false;
     document.getElementById('taskModalOverlay')?.classList.remove('open');
     currentTask = null;
 }

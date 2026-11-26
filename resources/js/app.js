@@ -1,5 +1,9 @@
 import './bootstrap';
 import { createIcons, icons } from 'lucide';
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
+
+window.Quill = Quill;
 
 window.lucide = {
     createIcons,
