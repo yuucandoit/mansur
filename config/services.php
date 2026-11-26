@@ -45,6 +45,7 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+        'digest_timezone' => env('TELEGRAM_DIGEST_TIMEZONE', 'Asia/Jakarta'),
     ],
 
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TelegramDigestService;
 use App\Services\TelegramService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,6 +96,67 @@ class PreferenceController extends Controller
 
         return response()->json([
             'message' => 'Test message sent to your Telegram!',
+        ]);
+    }
+
+    /**
+     * Save the user's Telegram daily digest schedule (morning & evening).
+     */
+    public function updateTelegramDigest(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'enabled' => 'required|boolean',
+            'morning' => ['required', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'evening' => ['required', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+        ], [
+            'morning.regex' => 'Morning time must be in HH:MM format.',
+            'evening.regex' => 'Evening time must be in HH:MM format.',
+        ]);
+
+        $user = $request->user();
+
+        if ($data['enabled'] && ! filled($user->telegram_user_id)) {
+            return response()->json([
+                'message' => 'Please save your Telegram User ID first before enabling Daily Digest.',
+            ], 422);
+        }
+
+        $user->update([
+            'telegram_digest_enabled' => (bool) $data['enabled'],
+            'telegram_digest_morning' => $data['morning'],
+            'telegram_digest_evening' => $data['evening'],
+        ]);
+
+        return response()->json([
+            'message' => $data['enabled']
+                ? "Daily digest enabled ({$data['morning']} & {$data['evening']} WIB)."
+                : 'Daily digest paused.',
+        ]);
+    }
+
+    /**
+     * Send the user's current task digest to Telegram immediately.
+     */
+    public function sendTelegramDigestNow(Request $request, TelegramDigestService $digest): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! filled($user->telegram_user_id)) {
+            return response()->json([
+                'message' => 'Please save your Telegram User ID first.',
+            ], 422);
+        }
+
+        $res = $digest->sendToUser($user);
+
+        if (! ($res['ok'] ?? false)) {
+            return response()->json([
+                'message' => 'Telegram error: '.($res['description'] ?? 'Failed to send digest.'),
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Daily task digest sent to your Telegram!',
         ]);
     }
 }

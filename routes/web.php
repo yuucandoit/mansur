@@ -102,6 +102,8 @@ Route::middleware(['auth'])->group(function(){
     Route::patch('/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
     Route::patch('/preferences/telegram', [PreferenceController::class, 'updateTelegram'])->name('preferences.telegram.update');
     Route::post('/preferences/telegram/test', [PreferenceController::class, 'testTelegram'])->name('preferences.telegram.test');
+    Route::patch('/preferences/telegram/digest', [PreferenceController::class, 'updateTelegramDigest'])->name('preferences.telegram.digest');
+    Route::post('/preferences/telegram/digest-now', [PreferenceController::class, 'sendTelegramDigestNow'])->name('preferences.telegram.digest-now');
 
     // Administration (global admin only)
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {

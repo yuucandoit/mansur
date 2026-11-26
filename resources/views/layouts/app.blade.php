@@ -502,6 +502,55 @@
                         Test Bot
                     </button>
                 </div>
+
+                <div class="h-px bg-border/60"></div>
+
+                <!-- Daily Digest Schedule -->
+                <div class="space-y-2.5">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <div>
+                            <div class="font-medium text-foreground">Daily Task Digest</div>
+                            <div class="text-[11px] text-muted-foreground">Ingatkan tugas aktif tiap pagi &amp; sore (WIB)</div>
+                        </div>
+                        <input type="checkbox"
+                               id="prefTelegramDigestEnabled"
+                               @checked(Auth::user()->telegram_digest_enabled)
+                               onchange="saveTelegramDigest()"
+                               class="shadcn-checkbox">
+                    </label>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label for="prefTelegramMorning" class="text-[11px] text-muted-foreground">Pagi (Morning)</label>
+                            <input type="time"
+                                   id="prefTelegramMorning"
+                                   value="{{ Auth::user()->telegram_digest_morning ?? '08:00' }}"
+                                   class="form-input text-xs h-8 font-mono">
+                        </div>
+                        <div class="space-y-1">
+                            <label for="prefTelegramEvening" class="text-[11px] text-muted-foreground">Sore (Evening)</label>
+                            <input type="time"
+                                   id="prefTelegramEvening"
+                                   value="{{ Auth::user()->telegram_digest_evening ?? '17:00' }}"
+                                   class="form-input text-xs h-8 font-mono">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button"
+                                id="saveDigestBtn"
+                                onclick="saveTelegramDigest()"
+                                class="btn btn-outline btn-sm text-xs flex-1">
+                            Save Schedule
+                        </button>
+                        <button type="button"
+                                id="sendDigestNowBtn"
+                                onclick="sendTelegramDigestNow()"
+                                class="btn btn-secondary btn-sm text-xs">
+                            Send Digest Now
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -624,6 +673,69 @@ async function testTelegramConnection() {
         }
 
         window.showToast(data.message || 'Test message sent!', 'success');
+    } catch {
+        window.showToast('Network error, please try again.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function saveTelegramDigest() {
+    const enabledEl = document.getElementById('prefTelegramDigestEnabled');
+    const morningEl = document.getElementById('prefTelegramMorning');
+    const eveningEl = document.getElementById('prefTelegramEvening');
+    const btn = document.getElementById('saveDigestBtn');
+
+    if (btn) btn.disabled = true;
+
+    try {
+        const res = await fetch('{{ route('preferences.telegram.digest') }}', {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({
+                enabled: enabledEl?.checked ? 1 : 0,
+                morning: morningEl?.value || '08:00',
+                evening: eveningEl?.value || '17:00'
+            })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            if (enabledEl && res.status === 422 && (data.message || '').includes('Telegram User ID')) {
+                enabledEl.checked = false;
+            }
+            const firstErr = data.errors?.morning?.[0] || data.errors?.evening?.[0];
+            window.showToast(firstErr || data.message || 'Could not save digest schedule.', 'error');
+            return;
+        }
+
+        window.showToast(data.message || 'Digest schedule saved.', 'success');
+    } catch {
+        window.showToast('Network error, please try again.', 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function sendTelegramDigestNow() {
+    const btn = document.getElementById('sendDigestNowBtn');
+    if (btn) btn.disabled = true;
+
+    try {
+        const res = await fetch('{{ route('preferences.telegram.digest-now') }}', {
+            method: 'POST',
+            headers
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+            window.showToast(data.message || 'Could not send digest.', 'error');
+            return;
+        }
+
+        window.showToast(data.message || 'Digest sent!', 'success');
     } catch {
         window.showToast('Network error, please try again.', 'error');
     } finally {

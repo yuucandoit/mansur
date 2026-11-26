@@ -11,6 +11,7 @@ class TelegramBotHandler
     public function __construct(
         private TelegramService $telegram,
         private AiAgentService $aiAgent,
+        private TelegramDigestService $digest,
     ) {
     }
 
@@ -54,6 +55,20 @@ class TelegramBotHandler
 
         if ($command === '/help') {
             $this->replyHelp($chatId, $user);
+            return;
+        }
+
+        if ($command === '/digest') {
+            if (! $user) {
+                $this->telegram->sendMessage(
+                    $chatId,
+                    "Akun Telegram kamu (User ID: {$fromId}) belum terhubung ke ProTask. Tambahkan di Settings → Telegram Integration terlebih dahulu."
+                );
+                return;
+            }
+
+            $this->telegram->sendChatAction($chatId, 'typing');
+            $this->digest->sendToUser($user);
             return;
         }
 
@@ -134,6 +149,7 @@ class TelegramBotHandler
             "Panduan Bot ProTask\n{$status}\n\n"
             ."Perintah:\n"
             ."/id — Lihat Telegram User ID kamu\n"
+            ."/digest — Kirim ringkasan tugas aktif saat ini\n"
             ."/help — Tampilkan bantuan ini\n\n"
             ."Atau langsung ketik instruksi biasa untuk mengelola project, task, checklist, komentar, dan assignment."
         );

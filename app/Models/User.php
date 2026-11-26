@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'is_active', 'task_notifications', 'compact_cards', 'telegram_user_id'])]
+#[Fillable(['name', 'email', 'password', 'role', 'is_active', 'task_notifications', 'compact_cards', 'telegram_user_id', 'telegram_digest_enabled', 'telegram_digest_morning', 'telegram_digest_evening', 'telegram_digest_last_sent_slot'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -27,11 +27,12 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active'          => 'boolean',
-            'task_notifications' => 'boolean',
-            'compact_cards'      => 'boolean',
+            'email_verified_at'       => 'datetime',
+            'password'                => 'hashed',
+            'is_active'               => 'boolean',
+            'task_notifications'      => 'boolean',
+            'compact_cards'           => 'boolean',
+            'telegram_digest_enabled' => 'boolean',
         ];
     }
 
